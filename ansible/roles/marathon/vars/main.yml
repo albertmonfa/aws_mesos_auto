@@ -1,0 +1,5 @@
+marathon_hostname: "{{ fqdn }}"
+marathon_version: "0.15.3-1.0.463"
+marathon_port: "8080"
+marathon_apt_repo: "deb http://repos.mesosphere.io/{{ansible_distribution|lower}} {{ansible_distribution_release|lower}} main"
+zookeeper_client_port: 2181

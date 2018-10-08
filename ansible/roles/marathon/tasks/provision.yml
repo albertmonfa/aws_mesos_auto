@@ -1,0 +1,16 @@
+---
+- name: Add apt-key
+  apt_key: id=E56151BF keyserver=keyserver.ubuntu.com state=present
+  tags: provision
+
+- name: Add Mesosphere repo
+  apt_repository: repo="{{marathon_apt_repo}}" state=present
+  tags: provision
+
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time={{ apt_cache_timeout }}
+  tags: provision
+
+- name: Install Marathon package
+  apt: pkg=marathon={{marathon_version}}.* state=present update_cache=yes force=yes
+  tags: provision

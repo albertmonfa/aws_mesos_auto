@@ -1,0 +1,45 @@
+---
+- name: Create Marathon conf directory
+  file: path=/etc/marathon/conf state=directory
+  tags: deploy
+  notify: Restart marathon
+
+- name: Remove --artifact_store option
+  file: path=/etc/marathon/conf/artifact_store state=absent
+  tags: deploy
+  notify: Restart marathon
+
+- name: Remove --checkpoint option
+  file: path=/etc/marathon/conf/?checkpoint state=absent
+  tags: deploy
+  notify: Restart marathon
+
+- name: Setting --zk option
+  template: src=zk.j2 dest=/etc/marathon/conf/zk
+  tags: deploy
+  notify: Restart marathon
+
+- name: Setting --master option
+  template: src=master.j2 dest=/etc/marathon/conf/master
+  tags: depoly
+  notify: Restart marathon
+
+- name: Setting --event_subscriber option
+  lineinfile: line="http_callback" dest=/etc/marathon/conf/event_subscriber create=yes
+  tags: deploy
+  notify: Restart marathon
+
+- name: Setting --hostname option
+  lineinfile: line={{ marathon_hostname }} dest=/etc/marathon/conf/hostname create=yes
+  tags: deploy
+  notify: Restart marathon
+
+- name: Setting --http-port option
+  lineinfile: line={{ marathon_port }} dest=/etc/marathon/conf/http_port create=yes
+  tags: deploy
+  notify: Restart marathon
+
+- name: Starting marathon service
+  service: name=marathon state=reloaded
+  tags: deploy
+

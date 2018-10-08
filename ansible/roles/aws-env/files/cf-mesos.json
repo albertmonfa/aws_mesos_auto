@@ -1,0 +1,783 @@
+{
+    "Description": "AWS CloudFormation Sample Template NatGateway: Sample template showing how to create a public NAT gateway. **WARNING** This template creates an Amazon NAT instance. You will be billed for the AWS resources used if you create a stack from this template.",
+    "Outputs": {
+        "MainInstance": {
+            "Description": "MainInstance Public IP",
+            "Value": {
+                "Fn::GetAtt": [
+                    "MainEc2Instance",
+                    "PublicIp"
+                ]
+            }
+        },
+        "MesosMaster1": {
+            "Description": "Mesos Master 1 IP",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Master1Ec2Instance",
+                    "PrivateIp"
+                ]
+            }
+        },
+        "MesosMaster2": {
+            "Description": "Mesos Master 2 IP",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Master2Ec2Instance",
+                    "PrivateIp"
+                ]
+            }
+        },
+        "MesosMaster3": {
+            "Description": "Mesos Master 3 IP",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Master3Ec2Instance",
+                    "PrivateIp"
+                ]
+            }
+        },
+        "MesosSlave1": {
+            "Description": "Mesos Slave 1 IP",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Slave1Ec2Instance",
+                    "PrivateIp"
+                ]
+            }
+        },
+        "MesosSlave2": {
+            "Description": "Mesos Slave 2 IP",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Slave2Ec2Instance",
+                    "PrivateIp"
+                ]
+            }
+        },
+        "MesosSlave3": {
+            "Description": "Mesos Slave 3 IP",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Slave3Ec2Instance",
+                    "PrivateIp"
+                ]
+            }
+        },
+        "MesosSlave4": {
+            "Description": "Mesos Slave 4 IP",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Slave4Ec2Instance",
+                    "PrivateIp"
+                ]
+            }
+        },
+        "MesosSlave5": {
+            "Description": "Mesos Slave 5 IP",
+            "Value": {
+                "Fn::GetAtt": [
+                    "Slave5Ec2Instance",
+                    "PrivateIp"
+                ]
+            }
+        },
+        "NatEip": {
+            "Description": "Nat Elastic IP",
+            "Value": {
+                "Ref": "NatEip"
+            }
+        },
+        "VPCId": {
+            "Description": "VPC Id",
+            "Value": {
+                "Ref": "VPC"
+            }
+        }
+    },
+    "Parameters": {
+        "AvailabilityZone": {
+            "Description": "Availability Zone of EC2 instances",
+            "Type": "String"
+        },
+        "Ec2InstType": {
+            "Default": "t2.small",
+            "Description": "EC2 Type instance",
+            "Type": "String"
+        },
+        "KeyName": {
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+            "Type": "String"
+        },
+        "MainAmiId": {
+            "Description": "Name of an existing ami base image ",
+            "Type": "String"
+        },
+        "MainIpAddr": {
+            "Default": "10.100.0.100",
+            "Description": "IP Address of Main Server",
+            "Type": "String"
+        },
+        "MainPrivIpAddr": {
+            "Default": "10.100.4.5",
+            "Description": "Priv IP Address of Main Server",
+            "Type": "String"
+        },
+        "Master1IpAddr": {
+            "Default": "10.100.4.10",
+            "Description": "IP Address of mesos master 1",
+            "Type": "String"
+        },
+        "Master2IpAddr": {
+            "Default": "10.100.4.11",
+            "Description": "IP Address of mesos master 2",
+            "Type": "String"
+        },
+        "Master3IpAddr": {
+            "Default": "10.100.4.12",
+            "Description": "IP Address of mesos master 3",
+            "Type": "String"
+        },
+        "PrivateSubnetCidr": {
+            "Default": "10.100.4.0/22",
+            "Description": "Public Subnet CIDR",
+            "Type": "String"
+        },
+        "PublicSubnetCidr": {
+            "Default": "10.100.0.0/22",
+            "Description": "Public Subnet CIDR",
+            "Type": "String"
+        },
+        "Slave1IpAddr": {
+            "Default": "10.100.4.20",
+            "Description": "IP Address of mesos slave 1",
+            "Type": "String"
+        },
+        "Slave2IpAddr": {
+            "Default": "10.100.4.21",
+            "Description": "IP Address of mesos slave 2",
+            "Type": "String"
+        },
+        "Slave3IpAddr": {
+            "Default": "10.100.4.22",
+            "Description": "IP Address of mesos slave 3",
+            "Type": "String"
+        },
+        "Slave4IpAddr": {
+            "Default": "10.100.4.23",
+            "Description": "IP Address of mesos slave 4",
+            "Type": "String"
+        },
+        "Slave5IpAddr": {
+            "Default": "10.100.4.24",
+            "Description": "IP Address of mesos slave 5",
+            "Type": "String"
+        },
+        "UbuntuAmiId": {
+            "Default": "ami-2d39803a",
+            "Description": "Name of an existing Ubuntu ami base image ",
+            "Type": "String"
+        },
+        "VPCCIDR": {
+            "Default": "10.100.0.0/16",
+            "Description": "The IP address space for this VPC, in CIDR notation",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "InstanceSecurityGroup": {
+            "Properties": {
+                "GroupDescription": "Enable SSH access via port 22",
+                "SecurityGroupIngress": [
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "IpProtocol": "-1"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        },
+        "InternetGateway": {
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "MesosTest Internet Gateway"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::InternetGateway"
+        },
+        "MainEc2Instance": {
+            "DependsOn": "VPC",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "ImageId": {
+                    "Ref": "MainAmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "true",
+                        "DeleteOnTermination": "true",
+                        "DeviceIndex": "0",
+                        "GroupSet": [
+                            {
+                                "Ref": "InstanceSecurityGroup"
+                            }
+                        ],
+                        "PrivateIpAddress": {
+                            "Ref": "MainIpAddr"
+                        },
+                        "SubnetId": {
+                            "Ref": "PublicSubnet"
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Main Instance"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "MainEc2InstanceEth1": {
+            "Properties": {
+                "Description": "Main Instance Private Interface",
+                "GroupSet": [
+                    {
+                        "Ref": "InstanceSecurityGroup"
+                    }
+                ],
+                "PrivateIpAddress": {
+                    "Ref": "MainPrivIpAddr"
+                },
+                "SourceDestCheck": "true",
+                "SubnetId": {
+                    "Ref": "PrivateSubnet"
+                }
+            },
+            "Type": "AWS::EC2::NetworkInterface"
+        },
+        "MainEc2InstanceEth1Attachment": {
+            "DependsOn": "MainEc2Instance",
+            "Properties": {
+                "DeleteOnTermination": "true",
+                "DeviceIndex": "1",
+                "InstanceId": {
+                    "Ref": "MainEc2Instance"
+                },
+                "NetworkInterfaceId": {
+                    "Ref": "MainEc2InstanceEth1"
+                }
+            },
+            "Type": "AWS::EC2::NetworkInterfaceAttachment"
+        },
+        "Master1Ec2Instance": {
+            "DependsOn": "VPC",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "ImageId": {
+                    "Ref": "UbuntuAmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "false",
+                        "DeleteOnTermination": "true",
+                        "DeviceIndex": "0",
+                        "GroupSet": [
+                            {
+                                "Ref": "InstanceSecurityGroup"
+                            }
+                        ],
+                        "PrivateIpAddress": {
+                            "Ref": "Master1IpAddr"
+                        },
+                        "SubnetId": {
+                            "Ref": "PrivateSubnet"
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "mesos-master-01"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "Master2Ec2Instance": {
+            "DependsOn": "VPC",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "ImageId": {
+                    "Ref": "UbuntuAmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "false",
+                        "DeleteOnTermination": "true",
+                        "DeviceIndex": "0",
+                        "GroupSet": [
+                            {
+                                "Ref": "InstanceSecurityGroup"
+                            }
+                        ],
+                        "PrivateIpAddress": {
+                            "Ref": "Master2IpAddr"
+                        },
+                        "SubnetId": {
+                            "Ref": "PrivateSubnet"
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "mesos-master-02"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "Master3Ec2Instance": {
+            "DependsOn": "VPC",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "ImageId": {
+                    "Ref": "UbuntuAmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "false",
+                        "DeleteOnTermination": "true",
+                        "DeviceIndex": "0",
+                        "GroupSet": [
+                            {
+                                "Ref": "InstanceSecurityGroup"
+                            }
+                        ],
+                        "PrivateIpAddress": {
+                            "Ref": "Master3IpAddr"
+                        },
+                        "SubnetId": {
+                            "Ref": "PrivateSubnet"
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "mesos-master-03"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "Nat": {
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "NatEip",
+                        "AllocationId"
+                    ]
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet"
+                }
+            },
+            "Type": "AWS::EC2::NatGateway"
+        },
+        "NatAttachment": {
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "InternetGateway"
+                },
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+            },
+            "Type": "AWS::EC2::VPCGatewayAttachment"
+        },
+        "NatEip": {
+            "Properties": {
+                "Domain": "vpc"
+            },
+            "Type": "AWS::EC2::EIP"
+        },
+        "NatRoute": {
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "NatGatewayId": {
+                    "Ref": "Nat"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                }
+            },
+            "Type": "AWS::EC2::Route"
+        },
+        "PrivateRouteAssociation": {
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PrivateSubnet"
+                }
+            },
+            "Type": "AWS::EC2::SubnetRouteTableAssociation"
+        },
+        "PrivateRouteTable": {
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Private Route Table MesosTest"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+            },
+            "Type": "AWS::EC2::RouteTable"
+        },
+        "PrivateSubnet": {
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "CidrBlock": {
+                    "Ref": "PrivateSubnetCidr"
+                },
+                "MapPublicIpOnLaunch": "false",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Private Subnet MesosTest"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+            },
+            "Type": "AWS::EC2::Subnet"
+        },
+        "PublicDefaultRoute": {
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                }
+            },
+            "Type": "AWS::EC2::Route"
+        },
+        "PublicRouteAssociation": {
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet"
+                }
+            },
+            "Type": "AWS::EC2::SubnetRouteTableAssociation"
+        },
+        "PublicRouteTable": {
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Public Route Table MesosTest"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+            },
+            "Type": "AWS::EC2::RouteTable"
+        },
+        "PublicSubnet": {
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "CidrBlock": {
+                    "Ref": "PublicSubnetCidr"
+                },
+                "MapPublicIpOnLaunch": "true",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Public Subnet MesosTest"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+            },
+            "Type": "AWS::EC2::Subnet"
+        },
+        "Slave1Ec2Instance": {
+            "DependsOn": "VPC",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "ImageId": {
+                    "Ref": "UbuntuAmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "false",
+                        "DeleteOnTermination": "true",
+                        "DeviceIndex": "0",
+                        "GroupSet": [
+                            {
+                                "Ref": "InstanceSecurityGroup"
+                            }
+                        ],
+                        "PrivateIpAddress": {
+                            "Ref": "Slave1IpAddr"
+                        },
+                        "SubnetId": {
+                            "Ref": "PrivateSubnet"
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "mesos-slave-01"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "Slave2Ec2Instance": {
+            "DependsOn": "VPC",
+            "Properties": {
+                "ImageId": {
+                    "Ref": "UbuntuAmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "false",
+                        "DeleteOnTermination": "true",
+                        "DeviceIndex": "0",
+                        "GroupSet": [
+                            {
+                                "Ref": "InstanceSecurityGroup"
+                            }
+                        ],
+                        "PrivateIpAddress": {
+                            "Ref": "Slave2IpAddr"
+                        },
+                        "SubnetId": {
+                            "Ref": "PrivateSubnet"
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "mesos-slave-02"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "Slave3Ec2Instance": {
+            "DependsOn": "VPC",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "ImageId": {
+                    "Ref": "UbuntuAmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "false",
+                        "DeleteOnTermination": "true",
+                        "DeviceIndex": "0",
+                        "GroupSet": [
+                            {
+                                "Ref": "InstanceSecurityGroup"
+                            }
+                        ],
+                        "PrivateIpAddress": {
+                            "Ref": "Slave3IpAddr"
+                        },
+                        "SubnetId": {
+                            "Ref": "PrivateSubnet"
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "mesos-slave-03"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "Slave4Ec2Instance": {
+            "DependsOn": "VPC",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "ImageId": {
+                    "Ref": "UbuntuAmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "false",
+                        "DeleteOnTermination": "true",
+                        "DeviceIndex": "0",
+                        "GroupSet": [
+                            {
+                                "Ref": "InstanceSecurityGroup"
+                            }
+                        ],
+                        "PrivateIpAddress": {
+                            "Ref": "Slave4IpAddr"
+                        },
+                        "SubnetId": {
+                            "Ref": "PrivateSubnet"
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "mesos-slave-04"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "Slave5Ec2Instance": {
+            "DependsOn": "VPC",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Ref": "AvailabilityZone"
+                },
+                "ImageId": {
+                    "Ref": "UbuntuAmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": "false",
+                        "DeleteOnTermination": "true",
+                        "DeviceIndex": "0",
+                        "GroupSet": [
+                            {
+                                "Ref": "InstanceSecurityGroup"
+                            }
+                        ],
+                        "PrivateIpAddress": {
+                            "Ref": "Slave5IpAddr"
+                        },
+                        "SubnetId": {
+                            "Ref": "PrivateSubnet"
+                        }
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "mesos-slave-05"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "VPC": {
+            "Properties": {
+                "CidrBlock": {
+                    "Ref": "VPCCIDR"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "MesosTest VPC"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::VPC"
+        }
+    }
+}

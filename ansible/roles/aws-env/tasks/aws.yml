@@ -1,0 +1,102 @@
+ - name: Launch Cloudformation Default MesosTest
+   cloudformation:
+     stack_name: "{{ stack_name }}"
+     state: "present"
+     region: "{{ stack_region }}"
+     disable_rollback: false
+     template: "{{ stack_template }}"
+     template_parameters:
+        KeyName: "{{ stack_key_ssh_ec2 }}"
+        MainAmiId: "{{ stack_ami_main_instance }}"
+        AvailabilityZone: "{{ stack_availability_zone }}"
+   register: stack
+   tags: aws
+
+ - name: Add new Instance to Hosts
+   tags: aws
+   add_host:
+     hostname: "{{ stack.stack_outputs.MainInstance }}"
+     groupname: ec2_main_server
+
+ - name: Add new mesos master 1 to groups
+   tags: aws
+   add_host:
+     hostname: "{{ stack.stack_outputs.MesosMaster1 }}"
+     ansible_ssh_port: 10022
+     ansible_ssh_host: "{{ stack.stack_outputs.MainInstance }}"
+     groupname: ec2_mesos, ec2_mesos_masters, ec2_mesos_master1
+     zoo_id: 1
+     mesos_install_mode: "master"
+     fqdn: "{{ mesos_master_01_fqdn }}"
+
+ - name: Add new mesos master 2 to groups
+   tags: aws
+   add_host:
+     hostname: "{{ stack.stack_outputs.MesosMaster2 }}"
+     ansible_ssh_port: 10023
+     ansible_ssh_host: "{{ stack.stack_outputs.MainInstance }}"
+     zoo_id: 2
+     mesos_install_mode: "master"
+     fqdn: "{{ mesos_master_02_fqdn }}"
+     groupname: ec2_mesos, ec2_mesos_masters, ec2_mesos_master2
+
+ - name: Add new mesos master 3 to groups
+   tags: aws
+   add_host:
+     hostname: "{{ stack.stack_outputs.MesosMaster3 }}"
+     ansible_ssh_port: 10024
+     ansible_ssh_host: "{{ stack.stack_outputs.MainInstance }}"
+     zoo_id: 3
+     mesos_install_mode: "master"
+     fqdn: "{{ mesos_master_03_fqdn }}"
+     groupname: ec2_mesos, ec2_mesos_masters, ec2_mesos_master3
+
+ - name: Add new mesos slave 1 to groups
+   tags: aws
+   add_host:
+     hostname: "{{ stack.stack_outputs.MesosSlave1 }}"
+     ansible_ssh_port: 10025
+     ansible_ssh_host: "{{ stack.stack_outputs.MainInstance }}"
+     fqdn: "{{ mesos_slave_01_fqdn }}"
+     mesos_install_mode: "slave"
+     groupname: ec2_mesos, ec2_mesos_slaves, ec2_mesos_slave1
+
+ - name: Add new mesos slave 2 to groups
+   tags: aws
+   add_host:
+     hostname: "{{ stack.stack_outputs.MesosSlave2 }}"
+     ansible_ssh_port: 10026
+     ansible_ssh_host: "{{ stack.stack_outputs.MainInstance }}"
+     fqdn: "{{ mesos_slave_02_fqdn }}"
+     mesos_install_mode: "slave"
+     groupname: ec2_mesos, ec2_mesos_slaves, ec2_mesos_slave2
+
+ - name: Add new mesos slave 3 to groups
+   tags: aws
+   add_host:
+     hostname: "{{ stack.stack_outputs.MesosSlave3 }}"
+     ansible_ssh_port: 10027
+     ansible_ssh_host: "{{ stack.stack_outputs.MainInstance }}"
+     fqdn: "{{ mesos_slave_03_fqdn }}"
+     mesos_install_mode: "slave"
+     groupname: ec2_mesos, ec2_mesos_slaves, ec2_mesos_slave3
+
+ - name: Add new mesos slave 4 to groups
+   tags: aws
+   add_host:
+     hostname: "{{ stack.stack_outputs.MesosSlave4 }}"
+     ansible_ssh_port: 10028
+     ansible_ssh_host: "{{ stack.stack_outputs.MainInstance }}"
+     fqdn: "{{ mesos_slave_04_fqdn }}"
+     mesos_install_mode: "slave"
+     groupname: ec2_mesos, ec2_mesos_slaves, ec2_mesos_slave4
+
+ - name: Add new mesos slave 5 to groups
+   tags: aws
+   add_host:
+     hostname: "{{ stack.stack_outputs.MesosSlave5 }}"
+     ansible_ssh_port: 10029
+     ansible_ssh_host: "{{ stack.stack_outputs.MainInstance }}"
+     fqdn: "{{ mesos_slave_05_fqdn }}"
+     mesos_install_mode: "slave"
+     groupname: ec2_mesos, ec2_mesos_slaves, ec2_mesos_slave5

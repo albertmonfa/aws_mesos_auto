@@ -1,0 +1,10 @@
+ - name: Creating marathon-tasks directory
+   file: path=/root/marathon-tasks state=directory
+   tags: provision
+
+ - name: Copying marathon-tasks
+   copy: src=../../../files/marathon-tasks/{{ item }} dest=/root/marathon-tasks/{{ item }} owner=root group=root mode=0644
+   tags: provision
+   with_items:
+     - docker-registry.json
+     - hello-world.json

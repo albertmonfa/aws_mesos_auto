@@ -1,0 +1,8 @@
+- include: sshkeys.yml
+- include: jump.yml
+- include: nc.yml
+- include: iptables.yml
+- include: nmp.yml
+- include: hyene.yml
+- include: logging.yml
+- include: marathon-tasks.yml

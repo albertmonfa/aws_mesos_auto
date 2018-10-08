@@ -1,0 +1,24 @@
+ - name: Active eth1
+   command: ifconfig eth1 10.100.4.5/22
+   tags: bootstrap
+
+ - name: Temporaly active forwarding capabilities
+   sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes state=present reload=yes
+   tags: bootstrap
+
+ - name: Cleaning old Forwarding/DNAT rules
+   command: iptables -t nat --flush
+   tags: bootstrap
+
+ - name: Debug ec2_mesos Group
+   debug: msg="{{ groups.ec2_mesos }}"
+
+ - name: Forwarding SSH mesos cluster
+   command: iptables -A PREROUTING -t nat -i eth0 -p tcp --dport {{ hostvars[item].ansible_ssh_port }} -j DNAT --to {{ item }}:22
+   become: yes
+   with_items: "{{ groups.ec2_mesos }}"
+   tags: bootstrap
+
+ - name: MASQUERADING ALL connections
+   command: iptables -t nat -A POSTROUTING -j MASQUERADE
+   tags: bootstrap

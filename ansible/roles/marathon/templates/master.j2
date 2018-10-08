@@ -1,0 +1,1 @@
+zk://{% for zk_node in groups['ec2_mesos_masters'] %}{{ zk_node }}:{{ zookeeper_client_port }}{% if not loop.last %},{% endif %}{% endfor %}/marathon

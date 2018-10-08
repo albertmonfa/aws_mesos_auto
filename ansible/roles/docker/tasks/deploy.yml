@@ -1,0 +1,10 @@
+- name: Adding insecure registries
+  template: src=docker.j2  dest=/etc/default/docker
+  tags: deploy
+  notify:
+    - Restart docker-daemon
+
+- name: Ensure starting docker service
+  service: name=docker state=started
+  tags: deploy
+

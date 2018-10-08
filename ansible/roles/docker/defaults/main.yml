@@ -1,0 +1,2 @@
+apt_cache_timeout: 3600
+docker_version: '1.9.1-0~trusty'

@@ -1,0 +1,35 @@
+- name: Add apt-key
+  apt_key: id=2C52609D keyserver=hkp://p80.pool.sks-keyservers.net:80 state=present
+  tags: provision
+
+- name: Add docker repo
+  apt_repository: repo='deb https://apt.dockerproject.org/repo ubuntu-{{ ansible_distribution_release }} main' state=present
+  tags: provision
+
+- name: Apt install required system packages.
+  apt: pkg={{ item }} state=present
+  tags: provision
+  with_items:
+    - linux-image-generic-lts-trusty
+    - apt-transport-https 
+    - ca-certificates
+
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time={{ apt_cache_timeout }}
+  tags: provision
+
+- name: Uninstall docker-io
+  apt: pkg={{ item }} state=absent purge=yes
+  tags: provision
+  with_items:
+    - docker.io
+
+- name: Upgrade packages
+  apt: upgrade=yes
+  tags: provision
+
+- name: Apt install docker-engine
+  apt: pkg={{ item }} state=present force=yes
+  tags: provision
+  with_items:
+    - "docker-engine={{ docker_version }}"

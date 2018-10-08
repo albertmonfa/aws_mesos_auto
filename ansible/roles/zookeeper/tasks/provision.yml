@@ -1,0 +1,10 @@
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time={{ apt_cache_timeout }}
+  tags: provision
+
+- name: Apt install required system packages.
+  apt: pkg={{ item }} state=installed
+  tags: provision
+  with_items:
+    - zookeeper
+    - zookeeperd

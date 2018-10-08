@@ -1,0 +1,17 @@
+stack_name: MesosMarathonTestStack
+#stack_ami_main_instance: ami-7ea24a17
+stack_ami_main_instance: ami-500d8546
+ansible_ssh_private_key_file: some_privkey_in_ec2
+stack_key_ssh_ec2: some_key_in_ec2
+stack_region: us-east-1
+stack_availability_zone: us-east-1a
+stack_template: roles/aws-env/files/cf-mesos.json
+
+mesos_master_01_fqdn: master01.local
+mesos_master_02_fqdn: master02.local
+mesos_master_03_fqdn: master03.local
+mesos_slave_01_fqdn: slave01.local
+mesos_slave_02_fqdn: slave02.local
+mesos_slave_03_fqdn: slave03.local
+mesos_slave_04_fqdn: slave04.local
+mesos_slave_05_fqdn: slave05.local

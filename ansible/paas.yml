@@ -1,0 +1,40 @@
+- hosts: ec2_mesos
+  become: yes
+  gather_facts: yes
+  remote_user: ubuntu
+  roles:
+    - java
+    - common
+
+  tasks:
+    - name: Add main Instance public key on mesos cluster members
+      authorized_key: user=ubuntu key="{{ lookup('file', 'roles/nodejump/files/id_rsa.pub') }}"
+      tags: bootstrap     
+
+    - name: Set hostname
+      hostname: name={{ fqdn  }}
+      tags: bootstrap
+
+    - name: Add Inventory on /etc/hosts
+      lineinfile: dest=/etc/hosts line="{{ item }} {{ hostvars[item].fqdn }}"
+      with_items: "{{ groups.ec2_mesos }}"
+      tags: bootstrap
+
+
+- hosts: ec2_mesos_masters
+  become: yes
+  gather_facts: yes
+  remote_user: ubuntu
+  roles:
+    - zookeeper
+    - mesos
+    - marathon
+
+
+- hosts: ec2_mesos_slaves
+  become: yes
+  gather_facts: yes
+  remote_user: ubuntu
+  roles:
+    - docker
+    - mesos

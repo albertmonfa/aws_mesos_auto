@@ -1,0 +1,5 @@
+# {{ansible_managed}}
+
+export MESOS_MASTER="zk://{% for zk_node in groups['ec2_mesos_masters'] %}{{ zk_node }}:{{ zookeeper_client_port }}{% if not loop.last %},{% endif %}{% endfor %}/mesos"
+export MESOS_CONTAINERIZERS="{{ mesos_containerizers }}"
+export MESOS_EXECUTOR_REGISTRATION_TIMEOUT="{{ mesos_executor_timeout }}"

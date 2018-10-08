@@ -1,0 +1,3 @@
+oracle_java_set_as_default: yes
+oracle_java_version: 8
+oracle_java_cache_valid_time: 3600

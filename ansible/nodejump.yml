@@ -1,0 +1,14 @@
+- hosts: ec2_main_server
+  become: yes
+  remote_user: centos
+  gather_facts: yes
+  roles:
+    - role: '1984'
+      keylog_user: root
+    - nodejump
+
+  tasks:
+    - name: Add Inventory on /etc/hosts
+      lineinfile: dest=/etc/hosts line="{{ item }}      {{ hostvars[item].fqdn }}"
+      with_items: "{{ groups.ec2_mesos }}"
+      tags: bootstrap
